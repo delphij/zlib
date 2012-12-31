@@ -1476,31 +1476,12 @@ break_matching: /* sorry for goto's, but such code is smaller and easier to view
 #ifdef PARANOID_CHECK
     if (match_found) {
         int error = 0;
-        if (real_len > s->lookahead) real_len = s->lookahead;
-        if (real_len > MAX_MATCH) {
-            error = 1;
-            printf ("match too long");
-        }
-        if (s->match_start <= limit_base) {
-            error = 1;
-            printf("too far $%X -> $%X [%d]  (dist+=%X)\n", s->strstart, s->match_start, real_len, limit_base-s->match_start);
-        }
-        if (zmemcmp(s->window + s->strstart, s->window + s->match_start, real_len)) {
-            error = 1;
-            printf("invalid match $%X -- $%X [%d]\n", s->strstart, s->match_start, real_len);
-        }
-        if (error) {
-            FILE *f = fopen("match.dmp", "wb");
-            if (f) {
-                fwrite(s->window, s->strstart + s->lookahead, 1, f);
-                fclose(f);
-            } else
-                printf("cannot dump");
-            Assert(0, "aborted");
-        }
-/*      Assert(real_len <= MAX_MATCH, "match too long");
-        Assert(s->match_start > limit_base, "match too far");
-        Assert(!zmemcmp(s->window + s->strstart, s->window + s->match_start, real_len), "invalid match"); */
+        if (real_len > s->lookahead)
+	    real_len = s->lookahead;
+	Assert(real_len > MAX_MATCH, "match too long");
+	Assert(real_len <= MAX_MATCH, "match too long");
+	Assert(s->match_start > limit_base, "match too far");
+	Assert(!zmemcmp(s->window + s->strstart, s->window + s->match_start, real_len), "invalid match");
     }
 #endif /* PARANOID_CHECK */
     if ((uInt)real_len <= s->lookahead) return (uInt)real_len;
